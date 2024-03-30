@@ -43,6 +43,8 @@ export default {
   plugins: [
     totalBundleSize({
       fileNameRegex: /\.(js|css)$/,
+      printFileStats: true,
+      calculateGzip: false,
     }),
   ],
 };

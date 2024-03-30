@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
 
@@ -16,30 +16,45 @@ async function calculateTotalSize(
   this: PluginContext,
   dir: string,
   fileNameRegex?: RegExp,
-  calculateGzip: boolean = false,
+  calculateGzip?: boolean,
+  printFileStats?: boolean,
 ) {
   let totalSize = 0;
   let gzipSize = 0;
 
   const calculate = async (dir: string) => {
     const files = await readdir(dir);
+
     for (const file of files) {
       const filePath = path.resolve(dir, file);
       const fileStat = await stat(filePath);
+
       if (fileStat.isDirectory()) {
         await calculate(filePath);
       } else if (!fileNameRegex || fileNameRegex.test(file)) {
+        let fileSizeStr = chalk
+          .blueBright(path.relative(process.cwd(), filePath))
+          .concat(chalk.bold(chalk.gray(`\t${formatSize(fileStat.size)}`)));
         totalSize += fileStat.size;
+
         if (calculateGzip) {
           const fileContent = await readFile(filePath);
           const gzippedContent = await gzipPromise(fileContent);
           gzipSize += gzippedContent.length;
+          fileSizeStr = fileSizeStr.concat(
+            chalk.gray(` | gzip: ${formatSize(gzippedContent.length)}`),
+          );
+        }
+
+        if (printFileStats) {
+          console.log(fileSizeStr);
         }
       }
     }
   };
 
   await calculate(dir);
+
   return { totalSize, gzipSize };
 }
 
@@ -50,6 +65,7 @@ function formatSize(size: number) {
 export interface TotalBundleSizeOptions {
   /**
    * A regular expression to match the file names to calculate the total size.
+   * @default /(\.(js|css|svg)$)|(index\.html$)/
    */
   fileNameRegex?: RegExp;
   /**
@@ -57,11 +73,16 @@ export interface TotalBundleSizeOptions {
    * @default true
    */
   calculateGzip?: boolean;
+  /**
+   * Whether to print the file stats.
+   */
+  printFileStats?: boolean;
 }
 
 export function totalBundleSize({
-  fileNameRegex,
+  fileNameRegex = /(\.(js|css|svg)$)|(index\.html$)/,
   calculateGzip = true,
+  printFileStats,
 }: TotalBundleSizeOptions = {}) {
   let outDir: string;
 
@@ -76,6 +97,7 @@ export function totalBundleSize({
         outDir,
         fileNameRegex,
         calculateGzip,
+        printFileStats,
       );
 
       let output = chalk
