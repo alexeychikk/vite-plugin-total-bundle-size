@@ -2,15 +2,22 @@
   "name": "vite-plugin-total-bundle-size",
   "version": "1.0.5",
   "description": "Vite plugin that outputs the total size of the bundle",
-  "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "debug": "tsc --watch",
+    "build": "rollup -c",
+    "debug": "rollup -c -w",
     "lint": "prettier --check . && eslint .",
     "format": "eslint --fix . && prettier --write ."
   },
@@ -32,6 +39,9 @@
   },
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/eslint": "^8.56.6",
     "@types/node": "^20.12.2",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
@@ -41,6 +51,7 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "prettier": "^3.2.5",
+    "tslib": "^2.6.2",
     "typescript": "^5.4.3"
   },
   "peerDependencies": {
