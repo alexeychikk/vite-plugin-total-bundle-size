@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { gzip } from 'zlib';
 
 import chalk from 'chalk';
 import { type PluginContext } from 'rollup';
@@ -8,13 +9,18 @@ import { type Plugin } from 'vite';
 
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
+const gzipPromise = promisify(gzip);
+const readFile = promisify(fs.readFile);
 
 async function calculateTotalSize(
   this: PluginContext,
   dir: string,
   fileNameRegex?: RegExp,
-): Promise<number> {
+  calculateGzip: boolean = false,
+) {
   let totalSize = 0;
+  let gzipSize = 0;
+
   const calculate = async (dir: string) => {
     const files = await readdir(dir);
     for (const file of files) {
@@ -24,11 +30,21 @@ async function calculateTotalSize(
         await calculate(filePath);
       } else if (!fileNameRegex || fileNameRegex.test(file)) {
         totalSize += fileStat.size;
+        if (calculateGzip) {
+          const fileContent = await readFile(filePath);
+          const gzippedContent = await gzipPromise(fileContent);
+          gzipSize += gzippedContent.length;
+        }
       }
     }
   };
+
   await calculate(dir);
-  return totalSize;
+  return { totalSize, gzipSize };
+}
+
+function formatSize(size: number) {
+  return `${(size / 1024).toFixed(2)} kB`;
 }
 
 export interface TotalBundleSizeOptions {
@@ -36,12 +52,17 @@ export interface TotalBundleSizeOptions {
    * A regular expression to match the file names to calculate the total size.
    */
   fileNameRegex?: RegExp;
+  /**
+   * Whether to calculate the gzip size.
+   * @default true
+   */
+  calculateGzip?: boolean;
 }
 
 export function totalBundleSize({
   fileNameRegex,
+  calculateGzip = true,
 }: TotalBundleSizeOptions = {}) {
-  let totalSize = 0;
   let outDir: string;
 
   const plugin: Plugin = {
@@ -50,18 +71,25 @@ export function totalBundleSize({
       outDir = options.dir || 'dist';
     },
     async closeBundle() {
-      totalSize = await calculateTotalSize.call(this, outDir, fileNameRegex);
-      console.log(
-        chalk
-          .redBright('Total: ')
-          .concat(
-            chalk.bold(chalk.gray(`${(totalSize / 1024).toFixed(2)} kB`)),
-          ),
+      const { totalSize, gzipSize } = await calculateTotalSize.call(
+        this,
+        outDir,
+        fileNameRegex,
+        calculateGzip,
       );
+
+      let output = chalk
+        .redBright('Total: ')
+        .concat(chalk.bold(chalk.gray(formatSize(totalSize))));
+
+      if (calculateGzip) {
+        output = output.concat(chalk.gray(` | gzip: ${formatSize(gzipSize)}`));
+      }
+
+      console.log(output);
     },
   };
 
-  // some weird TS error when returning as Plugin
   return plugin as any;
 }
 
