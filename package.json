@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-total-bundle-size",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Vite plugin that outputs the total size of the bundle",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,6 +23,10 @@
     "email": "alexdarkmm@gmail.com",
     "name": "Alex Zinkevych",
     "url": "http://alexeychikk.github.io"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexeychikk/vite-plugin-total-bundle-size.git"
   },
   "license": "ISC",
   "devDependencies": {
