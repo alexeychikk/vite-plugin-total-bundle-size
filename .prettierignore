@@ -1,0 +1,8 @@
+# Ignore files for PNPM, NPM and YARN
+build
+dist
+docs
+node_modules
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

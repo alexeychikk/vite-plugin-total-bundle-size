@@ -1,0 +1,46 @@
+{
+  "name": "vite-plugin-total-bundle-size",
+  "version": "1.0.0",
+  "description": "Vite plugin that outputs the total size of the bundle",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "prettier --check . && eslint .",
+    "format": "eslint --fix . && prettier --write ."
+  },
+  "keywords": [
+    "vite",
+    "plugin",
+    "bundle",
+    "size",
+    "total"
+  ],
+  "author": {
+    "email": "alexdarkmm@gmail.com",
+    "name": "Alex Zinkevych",
+    "url": "http://alexeychikk.github.io"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@types/eslint": "^8.56.6",
+    "@types/node": "^20.12.2",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.3"
+  },
+  "peerDependencies": {
+    "vite": ">=5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0"
+  }
+}
