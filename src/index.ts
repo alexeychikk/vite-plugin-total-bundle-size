@@ -3,7 +3,7 @@ import path from 'path';
 import { promisify } from 'util';
 
 import chalk from 'chalk';
-import type { Plugin } from 'vite';
+import { type Plugin } from 'vite';
 
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
@@ -39,19 +39,24 @@ export interface TotalBundleSizeOptions {
 
 export function totalBundleSize({
   fileNameRegex = /\.(html|css|js)$/,
-}: TotalBundleSizeOptions = {}): Plugin {
+}: TotalBundleSizeOptions = {}) {
   let totalSize = 0;
 
-  return {
+  const plugin: Plugin = {
     name: 'vite-plugin-total-bundle-size',
     async writeBundle(options) {
       const outDir = options.dir || 'dist';
       totalSize = await calculateTotalSize(outDir, fileNameRegex);
     },
     closeBundle() {
-      this.info(chalk.redBright(`Total: ${(totalSize / 1024).toFixed(2)} kB`));
+      console.log(
+        chalk.redBright(`Total: ${(totalSize / 1024).toFixed(2)} kB`),
+      );
     },
   };
+
+  // some weird TS error when returning as Plugin
+  return plugin as any;
 }
 
 export default totalBundleSize;
