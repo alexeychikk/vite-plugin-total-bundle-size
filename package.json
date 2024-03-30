@@ -1,7 +1,8 @@
 {
   "name": "vite-plugin-total-bundle-size",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vite plugin that outputs the total size of the bundle",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
