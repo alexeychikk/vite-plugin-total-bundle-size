@@ -59,7 +59,7 @@ async function calculateTotalSize(
 }
 
 function formatSize(size: number) {
-  return `${(size / 1024).toFixed(2)} kB`;
+  return `${(size / 1000).toFixed(2)} kB`;
 }
 
 export interface TotalBundleSizeOptions {
